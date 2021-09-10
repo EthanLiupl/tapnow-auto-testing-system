@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { spawn, SpawnOptions } from 'child_process';
+import { AppService } from './app.service';
 
 const EVERY_1_HOURS = '0 0 */1 * * *';
 const EVERY_12_HOURS = '0 0 12 * * *';
+
+// const EVERY_1_HOURS = '*/1 * * * * *';
+// const EVERY_12_HOURS = '*/1 * * * * *';
 
 export function run(cmd: string, options?: SpawnOptions): Promise<any> {
   const [command, ...args] = cmd.split(/\s+/);
@@ -23,11 +27,11 @@ export function run(cmd: string, options?: SpawnOptions): Promise<any> {
 
 @Injectable()
 export class AppSchedule {
+  constructor(private readonly appService: AppService) {}
   // Delete unused mersure info, default 2 hours ago.
   async runCaseWithRegister() {
     try {
-      console.log(process.env.CASE_WITH_REGISTER_SCRIPT);
-      await run(`${process.env.CASE_WITH_REGISTER_SCRIPT}`, {
+      await run(`${this.appService.scripts.caseWithRegisterJob}`, {
         cwd: process.env.CASE_RUNNING_CWD,
         stdio: 'inherit',
       });
@@ -38,7 +42,7 @@ export class AppSchedule {
 
   async runCaseWithoutRegister() {
     try {
-      await run(`${process.env.CASE_WITHOUT_REGISTER_SCRIPT}`, {
+      await run(`${this.appService.scripts.caseWithoutRegisterJob}`, {
         cwd: process.env.CASE_RUNNING_CWD,
         stdio: 'inherit',
       });
