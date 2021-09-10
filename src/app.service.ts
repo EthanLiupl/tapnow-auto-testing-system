@@ -18,7 +18,7 @@ export class AppService {
         channel: channel || '#test',
         text:
           message ||
-          'Test message from TapNow Frontend Auto Tesing, Pease ignore it.',
+          'Test message from TapNow Frontend Auto Tesing, please ignore it.',
         username: 'TapNow Frontend Auto Tesing Bot',
       },
       { headers: { authorization: `Bearer ${process.env.SLACK_TOKEN}` } },

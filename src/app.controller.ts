@@ -12,8 +12,12 @@ export class AppController {
   }
 
   @Get('/send')
-  @ApiQuery({ name: 'channel', type: String })
-  @ApiQuery({ name: 'message', type: String })
+  @ApiQuery({ name: 'channel', type: String, example: '#tapnow-deploy-alert' })
+  @ApiQuery({
+    name: 'message',
+    type: String,
+    example: 'Test message from TapNow Frontend Auto Tesing, Pease ignore it.',
+  })
   sendMessageToSlack(@Query() payload: any): any {
     return this.appService.sendMessageToSlack(payload);
   }
