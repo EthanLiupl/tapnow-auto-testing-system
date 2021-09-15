@@ -2,14 +2,15 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { EJobName } from './enum';
 import AWS from 'aws-sdk';
-import fs from 'fs';
 import moment from 'moment';
+import { run } from './utils';
 
 @Injectable()
 export class AppService {
   public scripts: {
     caseWithRegisterJob: string;
     caseWithoutRegisterJob: string;
+    syncReportToS3: string;
   };
 
   private s3: AWS.S3;
@@ -18,6 +19,7 @@ export class AppService {
     this.scripts = {
       caseWithRegisterJob: process.env.CASE_WITH_REGISTER_SCRIPT,
       caseWithoutRegisterJob: process.env.CASE_WITHOUT_REGISTER_SCRIPT,
+      syncReportToS3: process.env.SYNC_REPORT_TO_S3,
     };
     this.s3 = new AWS.S3({
       accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
@@ -59,24 +61,16 @@ export class AppService {
     return res.data;
   }
 
-  async sendHtmlToS3() {
-    const file = fs.readFileSync(process.env.LOCAL_HTML_REPORT_DIR);
-    console.log(file);
+  async sendReportToS3() {
+    const subDirectory = moment().format('YYYYMMDDHHmmss');
     try {
-      const { Key } = await this.s3
-        .upload({
-          Bucket: 'tapnow-dev',
-          Key: `doc/frontend-auto-testing-report-${moment().format(
-            'YYYYMMDD',
-          )}.html`,
-          Body: file,
-          ACL: 'public-read',
-          ContentType: 'text/html',
-        })
-        .promise();
-      return `https://tapnow-dev.s3.ap-southeast-1.amazonaws.com/${Key}`;
+      await run(`${this.scripts.syncReportToS3} ${subDirectory}`, {
+        cwd: process.env.CASE_RUNNING_CWD,
+        stdio: 'inherit',
+      });
+      return `https://tapnow-dev.s3.ap-southeast-1.amazonaws.com/doc/testing-reports/${subDirectory}/index.html`;
     } catch (error) {
-      console.log('error:', error);
+      console.log('sendReportToS3 error', error);
     }
   }
 }

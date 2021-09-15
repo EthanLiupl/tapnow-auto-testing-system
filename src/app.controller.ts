@@ -36,13 +36,13 @@ export class AppController {
   @ApiOperation({ summary: 'send html to s3' })
   @Post('/html-to-s3')
   sendHtmlToS3(): any {
-    return this.appService.sendHtmlToS3();
+    return this.appService.sendReportToS3();
   }
 
   @ApiOperation({ summary: 'send html to s3' })
   @Post('/uploadHtmlAndNoice')
   async uploadHtmlAndNotice() {
-    const url = await this.appService.sendHtmlToS3();
+    const url = await this.appService.sendReportToS3();
     return this.appService.sendMessageToSlack({
       channel: '#tapnow-deploy-alert',
       message: `Newest TapNow frontend auto testing report has generated, link: ${url}\nGenerated At: ${moment()

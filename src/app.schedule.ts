@@ -1,29 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { spawn, SpawnOptions } from 'child_process';
 import { AppService } from './app.service';
+import { run } from './utils';
 
 const EVERY_1_HOURS = '0 0 */1 * * *';
 const EVERY_12_HOURS = '0 0 12 * * *';
 
 // const EVERY_1_HOURS = '*/1 * * * * *';
 // const EVERY_12_HOURS = '*/1 * * * * *';
-
-export function run(cmd: string, options?: SpawnOptions): Promise<any> {
-  const [command, ...args] = cmd.split(/\s+/);
-  return new Promise((resolve, reject) => {
-    const cp = spawn(command, args, options);
-    cp.on('close', (code) => {
-      if (code !== 0) {
-        return reject(new Error(`${command} process exited with code ${code}`));
-      }
-      return resolve(code);
-    });
-    cp.on('error', (err) => {
-      return reject(err);
-    });
-  });
-}
 
 @Injectable()
 export class AppSchedule {
