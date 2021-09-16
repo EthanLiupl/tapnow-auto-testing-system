@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { AppService } from './app.service';
 import { run } from './utils';
-
+import moment from 'moment-timezone';
 const EVERY_1_HOURS = '0 0 */1 * * *';
 const EVERY_12_HOURS = '0 0 12 * * *';
 
@@ -38,6 +38,8 @@ export class AppSchedule {
   @Cron(EVERY_1_HOURS)
   async handleLoginCron() {
     try {
+      const hours = moment().tz('Asia/Hong_Kong').hours();
+      if (hours === 12) return;
       await this.runCaseWithRegister();
     } catch (error) {
       console.log('runCaseWithRegister error', error);
