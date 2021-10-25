@@ -3,6 +3,7 @@ import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { UpdateScriptRequest } from './dto';
 import moment from 'moment-timezone';
+import { ctry } from './utils';
 
 @Controller()
 export class AppController {
@@ -42,7 +43,8 @@ export class AppController {
   @ApiOperation({ summary: 'send html to s3' })
   @Post('/uploadHtmlAndNoice')
   async uploadHtmlAndNotice() {
-    const url = await this.appService.sendReportToS3();
+    const url = await ctry(3, () => this.appService.sendReportToS3());
+    // const url = await this.appService.sendReportToS3();
     return this.appService.sendMessageToSlack({
       channel: '#tapnow-deploy-alert',
       message: `Newest TapNow frontend auto testing report has generated, link: ${url}\nGenerated At: ${moment()

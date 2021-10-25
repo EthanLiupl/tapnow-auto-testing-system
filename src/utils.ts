@@ -15,3 +15,14 @@ export function run(cmd: string, options?: SpawnOptions): Promise<any> {
     });
   });
 }
+
+export async function ctry(times: number, fn: (...arg: any) => Promise<any>) {
+  try {
+    console.log(`倒数第${times}次尝试...`);
+    return await fn();
+  } catch (error) {
+    times--;
+    if (times > 0) return ctry(times, fn);
+    else throw new Error('-1');
+  }
+}
